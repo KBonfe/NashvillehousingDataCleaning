@@ -5,10 +5,10 @@ SELECT * FROM [dbo].[Nashvillehouseing]
 SELECT SaleDate, CONVERT(Date,SaleDate)
 FROM [dbo].[Nashvillehouseing]
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--adding a new column to put the transformed data in keeping original data if needed
 ADD SaleDateConverted Date;
 
-UPDATE [dbo].[Nashvillehouseing]
+UPDATE [dbo].[Nashvillehouseing]--converting the date into all the same date format so it is easier to use
 SET SaleDateConverted = CONVERT(Date,SaleDate)
 
 SELECT SaleDateConverted  FROM [dbo].[Nashvillehouseing]
@@ -20,7 +20,7 @@ FROM [dbo].[Nashvillehouseing]
 --where PropertyAddress is null
 ORDER BY ParcelID
 
-SELECT a.ParcelID, a.PropertyAddress, b.ParcelID, b.PropertyAddress,
+SELECT a.ParcelID, a.PropertyAddress, b.ParcelID, b.PropertyAddress, --Doing a self join in order to see if we can replace null property addresses with the correct address Utilizing the Parcel ID to find duplicates
 	ISNULL(a.PropertyAddress, b.PropertyAddress)
 FROM [dbo].[Nashvillehouseing] a
 JOIN [dbo].[Nashvillehouseing] b
@@ -29,7 +29,7 @@ JOIN [dbo].[Nashvillehouseing] b
 WHERE a.PropertyAddress is null
 
 UPDATE a
-SET PropertyAddress = ISNULL(a.PropertyAddress, b.PropertyAddress)
+SET PropertyAddress = ISNULL(a.PropertyAddress, b.PropertyAddress) --Doing a self join to replace null property addresses because the information was in another column --using ISNULL function to do the replacement
 FROM [dbo].[Nashvillehouseing] a
 JOIN [dbo].[Nashvillehouseing] b
 	ON a.ParcelID =b.ParcelID
@@ -43,21 +43,21 @@ SELECT PropertyAddress
 FROM [dbo].[Nashvillehouseing]
 
 SELECT 
-SUBSTRING(PropertyAddress,1, CHARINDEX (',', PropertyAddress)-1) AS StreetAddress, --CHARINDEX TELLS US A POSITION IN A NUMBER
+SUBSTRING(PropertyAddress,1, CHARINDEX (',', PropertyAddress)-1) AS StreetAddress, --Using SUBSTRING function to pull only street address from the property address --CHARINDEX TELLS US A POSITION IN A NUMBER
 SUBSTRING(PropertyAddress, CHARINDEX (',', PropertyAddress)+1, LEN(PropertyAddress)) AS City
 FROM [dbo].[Nashvillehouseing]
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--creating a new column to put Street address data into
 ADD PropertySplitAddress NVARCHAR(255);
 
 UPDATE [dbo].[Nashvillehouseing]
-SET PropertySplitAddress = SUBSTRING(PropertyAddress,1, CHARINDEX (',', PropertyAddress)-1) 
+SET PropertySplitAddress = SUBSTRING(PropertyAddress,1, CHARINDEX (',', PropertyAddress)-1) --Putting the extracted data into its own column
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--creating a new column to put City data into
 ADD PropertySplitCity NVARCHAR(255);
 
 UPDATE [dbo].[Nashvillehouseing]
-SET PropertySplitCity = SUBSTRING(PropertyAddress, CHARINDEX (',', PropertyAddress)+1, LEN(PropertyAddress))
+SET PropertySplitCity = SUBSTRING(PropertyAddress, CHARINDEX (',', PropertyAddress)+1, LEN(PropertyAddress))--Now using SUBSTRING to extract the City
 
 SELECT PropertySplitAddress, PropertySplitCity FROM [dbo].[Nashvillehouseing]
 
@@ -66,28 +66,28 @@ SELECT PropertySplitAddress, PropertySplitCity FROM [dbo].[Nashvillehouseing]
 SELECT * FROM [dbo].[Nashvillehouseing]
 
 SELECT 
-PARSENAME (REPLACE(OwnerAddress,',','.'), 3) AS StreetAdress,
+PARSENAME (REPLACE(OwnerAddress,',','.'), 3) AS StreetAdress,--using PARSENAME to pull the individual data from Owner Address
 PARSENAME (REPLACE(OwnerAddress,',','.'), 2) AS City,
 PARSENAME (REPLACE(OwnerAddress,',','.'), 1) AS State
 FROM [dbo].[Nashvillehouseing]
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--Creating a new column to put Address data into
 ADD StreetAddressOwner NVARCHAR(255);
 
 UPDATE [dbo].[Nashvillehouseing]
-SET  StreetAddressOwner= PARSENAME (REPLACE(OwnerAddress,',','.'), 3) 
+SET  StreetAddressOwner= PARSENAME (REPLACE(OwnerAddress,',','.'), 3) --putting the extracted address data into its own column
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--Creating a new column to put City data into
 ADD CityOwner NVARCHAR(255);
 
 UPDATE [dbo].[Nashvillehouseing]
-SET CityOwner = PARSENAME (REPLACE(OwnerAddress,',','.'), 2)
+SET CityOwner = PARSENAME (REPLACE(OwnerAddress,',','.'), 2)--putting the extracted city data into its own column
 
-ALTER TABLE [dbo].[Nashvillehouseing]
+ALTER TABLE [dbo].[Nashvillehouseing]--Creating a new column to put State data into
 ADD StateOwner NVARCHAR(255);
 
 UPDATE [dbo].[Nashvillehouseing]
-SET StateOwner = PARSENAME (REPLACE(OwnerAddress,',','.'), 1)
+SET StateOwner = PARSENAME (REPLACE(OwnerAddress,',','.'), 1)--putting the extracted state data into its own column
 
 SELECT StreetAddressOwner, CityOwner, StateOwner FROM [dbo].[Nashvillehouseing]
 
